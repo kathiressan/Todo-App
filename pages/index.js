@@ -1,82 +1,106 @@
-import Head from 'next/head'
+import Head from "next/head";
+import { useEffect, useState } from "react";
+import {
+  PlusCircleIcon,
+  CheckIcon,
+  PencilIcon,
+  TrashIcon,
+} from "@heroicons/react/outline";
+import { Item } from "../components/Item";
 
 export default function Home() {
+  const [quote, setQuote] = useState("");
+  const [input, setInput] = useState("");
+  const [listItems, setListItems] = useState([]);
+  useEffect(async () => {
+    const quotes = await fetch("https://type.fit/api/quotes")
+      .then((res) => res.json())
+      .catch(console.log("An error"));
+    setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+  }, []);
+
+  const addItem = (e) => {
+    e.preventDefault();
+    setListItems([...listItems, input]);
+    setInput("");
+  };
+  // const [isChecked, setIsChecked] = useState(false);
+  // const changeChecked = () => {
+  //   if (isChecked) {
+  //     setIsChecked(false);
+  //   } else {
+  //     setIsChecked(true);
+  //   }
+  // };
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
+    <div className="bg-gradient-to-r from-[#8e2de2] to-[#4a00e0] mx-auto px-10 min-h-screen ">
       <Head>
-        <title>Create Next App</title>
+        <title>Kathiressan Todo App</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
-      <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
-        <h1 className="text-6xl font-bold">
-          Welcome to{' '}
-          <a className="text-blue-600" href="https://nextjs.org">
-            Next.js!
-          </a>
-        </h1>
-
-        <p className="mt-3 text-2xl">
-          Get started by editing{' '}
-          <code className="p-3 font-mono text-lg bg-gray-100 rounded-md">
-            pages/index.js
-          </code>
-        </p>
-
-        <div className="flex flex-wrap items-center justify-around max-w-4xl mt-6 sm:w-full">
-          <a
-            href="https://nextjs.org/docs"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Documentation &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Find in-depth information about Next.js features and API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Learn &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Learn about Next.js in an interactive course with quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Examples &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Discover and deploy boilerplate example Next.js projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Deploy &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+      <div className="max-w-[1000px] mx-auto pt-36">
+        <div className="rounded-xl p-10 border border-[rgba(255,255,255,0.2)] bg-[rgba(255,255,255,0.4)] shadow-md">
+          <div className="text-black text-center mx-auto pb-14 max-w-[400px]">
+            <h1 className="text-5xl pb-5">Kathi's Todo App</h1>
+            <h2 className="text-2xl">{quote.text}</h2>
+            <h3 className="text-2xl">- {quote.author} -</h3>
+          </div>
+          <div className="text-center">
+            <form
+              onSubmit={addItem}
+              className="flex items-center justify-center"
+            >
+              <input
+                onChange={(e) => setInput(e.target.value)}
+                className="bg-transparent border border-white rounded-md p-1 outline-none shadow-md placeholder-white text-white"
+                type="text"
+                placeholder="Todo Item"
+                value={input}
+              />
+              <button onClick={addItem}>
+                <PlusCircleIcon className="h-7 cursor-pointer text-white pl-4 hover:scale-105 active:scale-100 transition duration-200 ease-out" />
+              </button>
+            </form>
+          </div>
+          <div className="max-w-[500px] mx-auto">
+            {listItems?.map((item) => (
+              <Item item={item} />
+            ))}
+          </div>
+          {/* <div className="max-w-[500px] mx-auto">
+            {listItems?.map((item) => (
+              <div className="border border-gray-600 m-2 p-2 rounded-xl flex justify-between">
+                <div className="border-r border-gray-600 p-3">
+                  <div
+                    onClick={changeChecked}
+                    className={`w-6 h-6 cursor-pointer hover:opacity-80 ${
+                      isChecked ? "bg-green-400" : "bg-white"
+                    }`}
+                  >
+                    <CheckIcon className="h-6 text-white p-1" />
+                  </div>
+                </div>
+                <div
+                  className={`p-3 text-white ${
+                    isChecked ? "line-through" : false
+                  }`}
+                  style={{ textDecorationColor: "black" }}
+                >
+                  {item}
+                </div>
+                <div className="border-l border-gray-600 p-3 flex space-x-3">
+                  <div className="bg-yellow-400 w-6 h-6 cursor-pointer hover:opacity-80">
+                    <PencilIcon className="h-6 text-white p-1" />
+                  </div>
+                  <div className="bg-red-500 w-6 h-6 cursor-pointer hover:opacity-80">
+                    <TrashIcon className="h-6 text-white p-1" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div> */}
         </div>
-      </main>
-
-      <footer className="flex items-center justify-center w-full h-24 border-t">
-        <a
-          className="flex items-center justify-center"
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="h-4 ml-2" />
-        </a>
-      </footer>
+      </div>
     </div>
-  )
+  );
 }
